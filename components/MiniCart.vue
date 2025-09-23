@@ -13,7 +13,7 @@
         <div class="mc-meta">
           <p class="mc-title" :title="it.product.title">{{ it.product.title }}</p>
           <div class="mc-line">
-            <strong>{{ formatPrice(it.product.price * it.qty) }}</strong>
+            <strong>{{ formatPrice(getFinalPrice(it.product) * it.qty) }}</strong>
           </div>
           <div class="mc-qty">
             <button @click="decQty(it.product.id)">−</button>
@@ -26,7 +26,7 @@
     <div v-if="itemsList.length" class="mc-footer">
       <div class="mc-total">
         <span>Total</span>
-        <strong>{{ formatPrice(totalPrice) }}</strong>
+        <strong>Rp {{ formatPrice(calculateTotal()) }}</strong>
       </div>
       <button class="mc-checkout" @click="checkout">Checkout</button>
     </div>
@@ -45,8 +45,18 @@ export default {
     ...mapActions('cart', ['inc', 'dec']),
     incQty(id){ this.inc(id) },
     decQty(id){ this.dec(id) },
-    formatPrice(n){
-      return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n)
+    formatPrice(price) {
+      return new Intl.NumberFormat('id-ID').format(price * 16500)
+    },
+    getFinalPrice(product) {
+      const p = Number(product.price) || 0
+      const d = Number(product.discountPercentage) || 0
+      return Math.round(p * (1 - d / 100))
+    },
+      calculateTotal() {
+      return this.itemsList.reduce((total, item) => {
+        return total + (this.getFinalPrice(item.product) * item.qty)
+      }, 0)
     },
     checkout(){
       this.$emit('close')

@@ -22,8 +22,7 @@
             <b-icon icon="chevron-down" class="chevron" :class="{ open: showCatPanel }" />
           </div>
         </div>
-
-        <!-- Search Form with API Integration -->
+        
         <div class="navbar-main__search-wrapper">
           <b-form inline class="navbar-main__search" @submit.prevent="handleSearch">
             <b-input-group class="navbar-main__search-group">
@@ -61,51 +60,28 @@
               <span>Mencari produk...</span>
             </div>
 
-            <!-- API Search Results -->
-<div v-else-if="searchQuery !== '' && apiSuggestions.length > 0" class="suggestions-section">
-  <div class="suggestions-header">
-    <span>Produk ({{ apiSuggestions.length }} hasil)</span>
-  </div>
-  <div v-for="(product, index) in apiSuggestions" 
-       :key="'product-' + product.id"
-       :class="['suggestion-item product-item', { active: selectedIndex === index }]"
-       @click="selectProduct(product)"
-       @mouseenter="selectedIndex = index">
-    <div class="product-image">
-      <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.title" />
-      <div v-else class="no-image">
-        <b-icon icon="image" />
-      </div>
-    </div>
-    <div class="product-info">
-      <div class="product-title" v-html="highlightMatch(product.title)"></div>
-      <div class="product-brand" v-if="product.brand">{{ product.brand }}</div>
-      <div class="product-category" v-if="product.category">{{ product.category }}</div>
-      <div class="product-price">${{ product.price }}</div>
-    </div>
-  </div>
-</div>
-
-            <!-- API Search Results -->
+                        <!-- API Search Results -->
             <div v-else-if="searchQuery !== '' && apiSuggestions.length > 0" class="suggestions-section">
               <div class="suggestions-header">
                 <span>Produk ({{ apiSuggestions.length }} hasil)</span>
               </div>
               <div v-for="(product, index) in apiSuggestions" 
-                   :key="'product-' + product.id"
-                   :class="['suggestion-item product-item', { active: selectedIndex === index }]"
-                   @click="selectProduct(product)"
-                   @mouseenter="selectedIndex = index">
+                  :key="'product-' + product.id"
+                  :class="['suggestion-item product-item', { active: selectedIndex === index }]"
+                  @click="selectProduct(product)"
+                  @mouseenter="selectedIndex = index">
                 <div class="product-image">
-                  <img v-if="product.image" :src="product.image" :alt="product.title" />
+                  <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.title" />
                   <div v-else class="no-image">
                     <b-icon icon="image" />
                   </div>
                 </div>
                 <div class="product-info">
                   <div class="product-title" v-html="highlightMatch(product.title)"></div>
-                  <div class="product-category">{{ product.category }}</div>
-                  <div class="product-price">${{ product.price }}</div>
+                  <div class="product-brand" v-if="product.brand">{{ product.brand }}</div>
+                  <div class="product-category" v-if="product.category">{{ product.category }}</div>
+                  <div class="product-price">${{ product.price }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -558,7 +534,18 @@ export default {
     onEnter(el) { el.style.height = '0px'; const h = el.scrollHeight; requestAnimationFrame(()=>{ el.style.height = h+'px' }) },
     afterEnter(el) { el.style.height = 'auto' },
     onLeave(el) { el.style.height = el.scrollHeight+'px'; requestAnimationFrame(()=>{ el.style.height='0px' }) },
-    afterLeave(el) { el.style.height='0px' }
+    afterLeave(el) { el.style.height='0px' },
+
+    formatPrice(price) {
+      return new Intl.NumberFormat('id-ID').format(price * 16500)
+    },
+    
+    // Tambahkan method ini untuk hitung harga setelah diskon
+    getFinalPrice(product) {
+      const p = Number(product.price) || 0
+      const d = Number(product.discountPercentage) || 0
+      return Math.round(p * (1 - d / 100))
+    }
   }
 }
 </script>

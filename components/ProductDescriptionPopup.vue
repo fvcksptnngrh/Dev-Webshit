@@ -11,11 +11,11 @@
               <img :src="product?.image || product?.thumbnail" :alt="product?.name">
             </div>
             <div class="price-info">
-              <div class="current-price">
-                Rp {{ formatPrice(product?.price) }}
-              </div>
               <div class="original-price" v-if="product?.discountPercentage">
-                Rp {{ formatPrice(getOriginalPrice) }}
+                Rp {{ formatPrice(product?.price ) }}
+              </div>
+              <div class="current-price">
+                Rp {{ formatPrice(finalPrice) }}
               </div>
             </div>
             <div class="delivery-badge">
@@ -85,10 +85,13 @@ export default {
     cartQty() {
       return this.product ? this.getQty(this.product.id) : 0
     },
-    getOriginalPrice() {
-      if (!this.product?.price || !this.product?.discountPercentage) return 0;
-      return Math.round(this.product.price * (1 + this.product.discountPercentage/100));
+    finalPrice() {
+      if (!this.product?.price) return 0
+      const p = Number(this.product.price) || 0
+      const d = Number(this.product.discountPercentage) || 0
+      return Math.round(p * (1 - d / 100))
     }
+
   },
   methods: {
     ...mapActions({
@@ -97,7 +100,7 @@ export default {
       decrementQty: 'cart/dec'
     }),
     formatPrice(price) {
-      return new Intl.NumberFormat('id-ID').format(price);
+      return new Intl.NumberFormat('id-ID').format(price * 16500)
     },
     async handleAddToCart() {
       if (!this.product) return
@@ -186,22 +189,23 @@ export default {
 }
 
 .current-price {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 600;
   color: #d3161c;
 }
 
 .original-price {
-  font-size: 13px;
+  font-size: 11px;
   color: #999;
   text-decoration: line-through;
 }
 
 .product-title {
-  font-size: 15px;
+  font-size: 19px;
   color: #222;
   margin: 0 0 12px;
   line-height: 1.4;
+  font-weight: 550;
 }
 
 .description-section {

@@ -9,16 +9,20 @@
     <div class="body">
       <h6 class="title" :title="product.title">{{ product.title }}</h6>
       <div class="price">
-        <span class="final">{{ formatRupiah(finalPrice) }}</span>
-        <span v-if="product.discountPercentage" class="strike">
-          {{ formatRupiah(product.price) }}
-        </span>
+        <div v-if="product.discountPercentage" class="strike">
+          Rp {{ formatPrice(product.price) }}
+        </div>
+        <div class="final">Rp {{ formatPrice(finalPrice) }}</div>
       </div>
       <button v-if="qty === 0" class="btn-buy" @click="addToCart">Beli</button>
       <div v-else class="qty-control">
         <button class="qc-btn" @click="decQty">−</button>
         <div class="qc-val">{{ qty }}</div>
         <button class="qc-btn" @click="incQty">+</button>
+      </div>
+        <div class="instant-badge">
+          <img src="instant.svg" alt="instant" class="instant-icon" />
+          <span class="instant-text">Pengiriman Instant</span>
       </div>
     </div>
   </div>
@@ -38,12 +42,13 @@ export default {
       const d = Number(props.product.discountPercentage) || 0
       return Math.round(p * (1 - d / 100))
     })
-    function formatRupiah(n) {
-      return new Intl.NumberFormat('id-ID', {
-        style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-      }).format(n)
+    
+    // Ganti formatRupiah dengan formatPrice
+    function formatPrice(price) {
+      return new Intl.NumberFormat('id-ID').format(price * 16500)
     }
-    return { finalPrice, formatRupiah }
+    
+    return { finalPrice, formatPrice }
   },
   computed: {
     ...mapGetters('cart', ['getQty']),
@@ -73,6 +78,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .product-card{
   display:flex;
@@ -140,21 +146,23 @@ export default {
 
 .price{
   display:flex;
-  align-items:baseline;
-  gap:8px;
-  margin-top:2px;
+  flex-direction: column;
+  gap: 2px;
+  margin-top:4px;
 }
 
 .final{
   color:#d3161c;
   font-size:16px;
   font-weight:700;
+  order: 2;
 }
 
 .strike{
   color:#9aa0a6;
   text-decoration:line-through;
   font-size:12px;
+  order: 1;
 }
 
 .btn-buy{
@@ -212,5 +220,23 @@ export default {
   user-select:none;
 }
 
+.instant-badge{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:2px;
+}
+
+.instant-icon{
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+}
+
+.instant-text{
+  font-size:12px;
+  color:#666;
+  font-weight:500;
+}
 
 </style>
