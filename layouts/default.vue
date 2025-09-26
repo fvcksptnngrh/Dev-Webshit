@@ -2,7 +2,10 @@
 <template>
   <div class="app-root" :class="{ 'is-dimmed': isDimmed }">
     <TopNavbar />
-    <Navbar @search-focus="toggleDim" />
+    <Navbar
+     @search-focus="toggleDim"
+     @open-detail="handleProductSelected"
+      />
     <div v-if="isDimmed" class="app-dim-overlay" @click="toggleDim(false)"></div>
     <main class="app-content">
       <nuxt />
@@ -17,6 +20,7 @@ import Navbar from '~/components/Navbar.vue'
 import TopNavbar from '~/components/TopNavbar.vue'
 import Footer from '~/components/Footer.vue'
 
+
 export default {
   components: { Navbar, TopNavbar, Footer },
   setup() {
@@ -25,6 +29,12 @@ export default {
       isDimmed.value = !!val
     }
     return { isDimmed, toggleDim }
+  },
+  methods: {
+  handleProductSelected(product) {
+    console.log('Product selected in layout:', product)
+    this.$nuxt.$emit('product-selected', product)
+    }
   }
 }
 </script>

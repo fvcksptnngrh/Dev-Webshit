@@ -68,7 +68,7 @@ export default {
       this.showAddPopup = false
     },
     openDetail(product){
-      console.log('open detail', product.id)
+      console.log('open detail', product)
     }
   }
 }

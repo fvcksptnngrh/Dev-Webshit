@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div v-if="visible" class="popup-overlay" @click.self="$emit('close')">
+    <div v-if="visible && product" class="popup-overlay" @click.self="$emit('close')">
       <div class="popup-content">
         <button class="close-btn" @click="$emit('close')" aria-label="Tutup">
           <span>&times;</span>
@@ -8,7 +8,7 @@
         <div class="scrollable-content">
           <div class="upper-section">
             <div class="product-image">
-              <img :src="product?.image || product?.thumbnail" :alt="product?.name">
+              <img :src="product.thumbnail || product.image" :alt="product.title || product.name">
             </div>
             <div class="price-info">
               <div class="original-price" v-if="product?.discountPercentage">
@@ -22,7 +22,7 @@
               <img src="/Instant.svg" alt="Check" class="check-icon">
               <span>Pengiriman Instan</span>
             </div>
-            <h3 class="product-title">{{ product?.name || product?.title }}</h3>
+            <h3 class="product-title">{{ product.title || product.name }}</h3>
             <div class="shipping-info">
               <img src="/Delivery.svg" alt="Shipping" class="shipping-icon">
               <span>Area Pengiriman: <strong>Bekasi</strong></span>

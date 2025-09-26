@@ -13,6 +13,7 @@
       role="region"
       aria-label="Kategori"
       @keydown.esc.prevent="$emit('close')"
+
     >
       <div class="cat-panel__inner" ref="inner">
         <CategorySlider v-if="useSlider" />
@@ -22,6 +23,7 @@
             :key="c.id || c.slug || c.name"
             class="cat-item"
             @click="$emit('select', c)"
+            
           >
             <img v-if="c.icon" :src="c.icon" :alt="c.name" />
             <span>{{ c.name }}</span>
@@ -98,7 +100,8 @@ export default {
     },
     onResize() {
       this.adjustOpenHeight()
-    }
+    },
+
   }
 }
 </script>

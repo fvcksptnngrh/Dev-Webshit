@@ -7,7 +7,7 @@
     <div class="mt-4 mb-5 mt-lg-5">
       <ProductSection
         title="Produk Terbaru"
-        :limit="18"
+        :limit="30"
         :skip="0"
         :initial="6"
         @added="onAdded"
@@ -40,8 +40,8 @@
     <div class="mt-5 mb-5">
       <ProductSection
         title="Produk Rekomendasi"
-        :limit="18"
-        :skip="18"
+        :limit="30"
+        :skip="60"
         :initial="6"
         @added="onAdded"
         @qty-changed="onQtyChanged"
@@ -87,6 +87,14 @@ export default {
       selectedProduct: null
     }
   },
+
+    mounted() {
+        this.$nuxt.$on('product-selected', this.openDetail)
+      },
+    beforeDestroy() {
+      this.$nuxt.$off('product-selected', this.openDetail)
+    },
+  
   methods: {
     onAdded({ product }) {
       this.popupProduct = product
@@ -109,7 +117,6 @@ export default {
       this.showAddPopup = false
     },
     openDetail(product) {
-      console.log('Opening detail for product:', product)
       this.selectedProduct = { ...product }
       this.showDescPopup = true
     },
@@ -117,6 +124,7 @@ export default {
       this.showDescPopup = false
       this.selectedProduct = null
     }
-  }
+  },
+
 }
 </script>

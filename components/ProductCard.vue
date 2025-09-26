@@ -21,7 +21,7 @@
         <button class="qc-btn" @click="incQty">+</button>
       </div>
         <div class="instant-badge">
-          <img src="instant.svg" alt="instant" class="instant-icon" />
+          <img src="/Instant.svg" alt="instant" class="instant-icon" />
           <span class="instant-text">Pengiriman Instant</span>
       </div>
     </div>
@@ -61,6 +61,7 @@ export default {
     addToCart() {
       this.add(this.product)
       this.$emit('added', { product: this.product, qty: 1 })
+      this.$emit('show-toast', `${this.product.title} berhasil ditambahkan ke keranjang`)
     },
     incQty() {
       this.inc(this.product.id)

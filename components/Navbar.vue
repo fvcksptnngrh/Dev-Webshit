@@ -69,7 +69,9 @@
                   :key="'product-' + product.id"
                   :class="['suggestion-item product-item', { active: selectedIndex === index }]"
                   @click="selectProduct(product)"
-                  @mouseenter="selectedIndex = index">
+                  @touchstart="selectProduct(product)"
+                  >
+                  <!-- @mouseenter="selectedIndex = index" -->
                 <div class="product-image">
                   <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.title" />
                   <div v-else class="no-image">
@@ -80,7 +82,7 @@
                   <div class="product-title" v-html="highlightMatch(product.title)"></div>
                   <div class="product-brand" v-if="product.brand">{{ product.brand }}</div>
                   <div class="product-category" v-if="product.category">{{ product.category }}</div>
-                  <div class="product-price">${{ product.price }}
+                  <div class="product-price">Rp{{ getFinalPrice(product) }}
                   </div>
                 </div>
               </div>
@@ -126,6 +128,7 @@
                   class="cat-item"
                   :class="{ active: i === hoverIndex }"
                   @mouseenter="hoverIndex=i"
+                  @click="selectCategory(c)"
                   tabindex="0">
                 <span class="cat-icon">{{ c.icon }}</span>
                 <span class="cat-name">{{ c.name }}</span>
@@ -167,27 +170,21 @@ export default {
       isLoading: false,
       isLoadingSuggestions: false,
       
-      // API data - menggunakan API yang sama dengan ProductSection
+      // API data
       apiSuggestions: [],
       searchTimeout: null,
-      allProducts: [], // Cache semua produk
+      allProducts: [],
       
-      categories: [
-        { name:'Kebutuhan Dapur', icon:'🍳' },
-        { name:'Kebutuhan Ibu & Anak', icon:'🍼' },
-        { name:'Kebutuhan Rumah', icon:'🏠' },
-        { name:'Makanan', icon:'🍜' },
-        { name:'Minuman', icon:'🥤' },
-        { name:'Produk Segar & Beku', icon:'❄️' },
-        { name:'Personal Care', icon:'🧴' },
-        { name:'Kebutuhan Kesehatan', icon:'💊' },
-        { name:'Lifestyle', icon:'🎧' },
-        { name:'Pet Foods', icon:'🐾' }
-      ]
+      // Categories dari API
+      categories: [],
+      isLoadingCategories: false,
+      selectedCategory: null
     }
   },
   computed: {
-    hoverCategory() { return this.categories[this.hoverIndex] || null },
+    hoverCategory() { 
+      return this.categories[this.hoverIndex] || null 
+    },
     navInlineStyle() {
       return { '--nav-offset': this.topOffset + 'px' }
     }
@@ -195,7 +192,8 @@ export default {
   mounted() {
     this.computeOffset()
     this.loadSearchHistory()
-    this.loadAllProducts() // Load produk saat component mounted
+    this.loadAllProducts()
+    this.loadCategories() // Load kategori dari API
     window.addEventListener('resize', this.computeOffset)
     this.$root.$on('ui:openMiniCart', () => {
       this.showMiniCart = true
@@ -210,7 +208,87 @@ export default {
     this.clearSearchTimeout()
   },
   methods: {
-    // ...existing methods untuk kategori dan cart...
+    async loadCategories() {
+  this.isLoadingCategories = true
+  try {
+    const response = await fetch('https://dummyjson.com/products/category-list')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    
+    const categoryList = await response.json()
+    
+    // Ambil hanya 10 kategori pertama
+    this.categories = categoryList.slice(0, 10).map(category => ({
+      name: this.formatCategoryName(category),
+      slug: category,
+      icon: this.getCategoryIcon(category),
+      originalName: category
+    }))
+    
+    console.log('Categories loaded:', this.categories.length)
+    
+  } catch (error) {
+    console.error('Error loading categories:', error)
+    this.categories = [
+      { name: 'Beauty', slug: 'beauty', icon: '💄', originalName: 'beauty' },
+      { name: 'Fragrances', slug: 'fragrances', icon: '🌸', originalName: 'fragrances' },
+      { name: 'Furniture', slug: 'furniture', icon: '🪑', originalName: 'furniture' },
+      { name: 'Groceries', slug: 'groceries', icon: '🥬', originalName: 'groceries' },
+      { name: 'Home Decoration', slug: 'home-decoration', icon: '🏠', originalName: 'home-decoration' },
+      { name: 'Kitchen Accessories', slug: 'kitchen-accessories', icon: '🍳', originalName: 'kitchen-accessories' },
+      { name: 'Laptops', slug: 'laptops', icon: '💻', originalName: 'laptops' },
+      { name: 'Mens Shirts', slug: 'mens-shirts', icon: '👔', originalName: 'mens-shirts' },
+      { name: 'Smartphones', slug: 'smartphones', icon: '📱', originalName: 'smartphones' },
+      { name: 'Sports Accessories', slug: 'sports-accessories', icon: '⚽', originalName: 'sports-accessories' }
+    ]
+  } finally {
+    this.isLoadingCategories = false
+  }
+},
+    
+    // Format nama kategori agar lebih rapi
+    formatCategoryName(category) {
+      return category
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    },
+    
+    // Berikan icon berdasarkan kategori
+   getCategoryIconName(category) {
+  const iconMap = {
+    'beauty': 'brush',
+    'fragrances': 'flower',
+    'furniture': 'house-door',
+    'groceries': 'basket',
+    'home-decoration': 'house',
+    'kitchen-accessories': 'egg-fried',
+    'laptops': 'laptop',
+    'mens-shirts': 'person',
+    'mens-shoes': 'bag',
+    'men-watches': 'watch'
+  }
+  return iconMap[category] || 'box'
+},
+    
+    // Handle klik kategori
+    selectCategory(category) {
+      this.selectedCategory = category
+      this.$emit('category-selected', {
+        category: category.originalName,
+        displayName: category.name
+      })
+      this.$router.push('/kategori/' + category.slug)
+      this.hideCatImmediate()
+      console.log('Category selected:', category.originalName)
+    },
+    
+    // Reset filter kategori
+    clearCategoryFilter() {
+      this.selectedCategory = null
+      this.$emit('category-cleared')
+    },
+
+    // ...existing methods...
     computeOffset() {
       const topBar = document.querySelector('.top-navbar') || document.querySelector('.TopNavbar')
       this.topOffset = topBar ? topBar.offsetHeight : 0
@@ -252,37 +330,30 @@ export default {
     handleOutside(e) {
       if (!this.$el) return
       
-      // Handle category panel
       const panel = this.$el.querySelector('#cat-panel')
       const trigger = this.$el.querySelector('.cat-trigger')
       if (this.showCatPanel && panel && !panel.contains(e.target) && trigger && !trigger.contains(e.target)) {
         this.hideCatImmediate()
       }
       
-      // Handle cart
       if (this.showMiniCart) {
         const cartWrap = this.$el.querySelector('.cart-wrapper')
         if (cartWrap && !cartWrap.contains(e.target)) this.showMiniCart = false
       }
       
-      // Handle search suggestions
       const searchWrapper = this.$el.querySelector('.navbar-main__search-wrapper')
       if (this.showSuggestions && searchWrapper && !searchWrapper.contains(e.target)) {
         this.hideSuggestions()
       }
     },
     
-    // Load semua produk dari API yang sama dengan ProductSection
     async loadAllProducts() {
       try {
-        // Menggunakan API yang sama dengan ProductSection
-        // Ambil lebih banyak produk untuk pencarian (bisa disesuaikan)
         const response = await fetch('https://dummyjson.com/products?limit=100&skip=0')
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         
         const data = await response.json()
         
-        // Format data sama seperti di ProductSection
         this.allProducts = (data.products || []).map(p => ({
           id: p.id,
           title: p.title,
@@ -292,7 +363,7 @@ export default {
           discountPercentage: p.discountPercentage,
           rating: p.rating,
           thumbnail: p.thumbnail || '/placeholder-product.png',
-          category: p.category // Tambahan untuk pencarian
+          category: p.category
         }))
         
         console.log('Loaded products for search:', this.allProducts.length)
@@ -302,8 +373,10 @@ export default {
         this.allProducts = []
       }
     },
+
     
-    // Search methods with API integration
+    
+    // Search methods
     onSearchFocus() {
       this.isSearchFocused = true
       this.showSuggestions = true
@@ -326,7 +399,6 @@ export default {
         this.showSuggestions = true
       }
       
-      // Debounce search
       this.clearSearchTimeout()
       if (this.searchQuery.trim()) {
         this.searchTimeout = setTimeout(() => {
@@ -337,7 +409,6 @@ export default {
       }
     },
     
-    // Filter produk dari cache berdasarkan query
     fetchSuggestions() {
       if (!this.searchQuery.trim()) {
         this.apiSuggestions = []
@@ -348,8 +419,7 @@ export default {
       
       try {
         const query = this.searchQuery.toLowerCase()
-        
-        // Filter produk dari cache
+        console.log('Filtering suggestions for query:', query)
         this.apiSuggestions = this.allProducts
           .filter(product => {
             return (
@@ -359,7 +429,7 @@ export default {
               product.description?.toLowerCase().includes(query)
             )
           })
-          .slice(0, 8) // Limit 8 suggestions
+          .slice(0, 8)
           
       } catch (error) {
         console.error('Error filtering suggestions:', error)
@@ -391,7 +461,6 @@ export default {
       try {
         const queryLower = query.toLowerCase()
         
-        // Filter semua produk berdasarkan query
         const results = this.allProducts.filter(product => {
           return (
             product.title.toLowerCase().includes(queryLower) ||
@@ -401,14 +470,12 @@ export default {
           )
         })
         
-        // Emit hasil pencarian ke parent component
         this.$emit('search-results', {
           query: query,
           results: results,
           total: results.length
         })
         
-        // Juga emit event search
         this.$emit('search', {
           query: query,
           type: 'search'
@@ -424,10 +491,8 @@ export default {
       const selected = item || this.getSelectedItem()
       if (selected) {
         if (typeof selected === 'string') {
-          // History item
           this.searchQuery = selected
         } else {
-          // Product object
           this.searchQuery = selected.title
         }
         this.handleSearch()
@@ -435,23 +500,19 @@ export default {
     },
     
     selectProduct(product) {
-      // Emit product selection event
-      this.$emit('product-selected', product)
-      
-      // Set search query dan tutup suggestions
-      this.searchQuery = product.title
+      console.log('Product selected from suggestions:', product)
+      this.$emit('open-detail', product)
       this.hideSuggestions()
-      
-      // Bisa juga langsung perform search
-      // this.handleSearch()
     },
     
     selectHistoryItem(item) {
+      console.log('History item selected:', item)
       this.searchQuery = item
       this.handleSearch()
     },
     
     getSelectedItem() {
+      console.log('Getting selected item at index:', this.selectedIndex)
       if (this.selectedIndex === -1) return null
       
       if (this.searchQuery === '' && this.searchHistory.length > 0) {
@@ -540,11 +601,10 @@ export default {
       return new Intl.NumberFormat('id-ID').format(price * 16500)
     },
     
-    // Tambahkan method ini untuk hitung harga setelah diskon
     getFinalPrice(product) {
       const p = Number(product.price) || 0
       const d = Number(product.discountPercentage) || 0
-      return Math.round(p * (1 - d / 100))
+      return this.formatPrice(Math.round(p * (1 - d / 100)))
     }
   }
 }
@@ -762,7 +822,7 @@ export default {
   border-top: none;
   border-radius: 0 0 10px 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
   z-index: 1001;
 }
@@ -887,7 +947,7 @@ export default {
   color: #333;
   margin-bottom: 4px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -945,6 +1005,7 @@ export default {
   font-weight: 600 !important;
   text-decoration: none !important;
 }
+
 
 .product-brand {
   font-size: 12px;
