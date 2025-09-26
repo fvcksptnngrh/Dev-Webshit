@@ -2,12 +2,31 @@
   <section class="product-section">
     <div class="section-header">
       <h3 class="section-title">{{ title }}</h3>
+      <div class="sort-dropdown-wrapper">
+        <button class="sort-btn" @click="showSortDropdown = !showSortDropdown">
+          <b-icon icon="arrow-down-up" /> {{ sortLabel }}
+        </button>
+        <div v-if="showSortDropdown" class="sort-dropdown">
+          <div class="sort-item" @click="setSort('default')">
+            <b-icon icon="list" class="sort-icon" />
+            <span>Default</span>
+          </div>
+          <div class="sort-item" @click="setSort('asc')">
+            <b-icon icon="arrow-down" class="sort-icon" />
+            <span>Harga Terendah</span>
+          </div>
+          <div class="sort-item" @click="setSort('desc')">
+            <b-icon icon="arrow-up" class="sort-icon" />
+            <span>Harga Tertinggi</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div v-if="loading" class="state text-center">Memuat produk…</div>
     <div v-else-if="error" class="state text-center text-danger">{{ error }}</div>
     <div v-else class="grid">
       <ProductCard
-        v-for="p in visible"
+        v-for="p in sortedVisible"
         :key="p.id"
         :product="p"
         @added="$emit('added', $event)"
@@ -27,28 +46,57 @@
 <script>
 import { ref, computed, onMounted, watch } from '@nuxtjs/composition-api'
 import ProductCard from '~/components/ProductCard.vue'
+import { BIcon, BIconArrowDownUp, BIconArrowDown, BIconArrowUp, BIconList } from 'bootstrap-vue'
 
 export default {
   name: 'ProductSection',
-  components: { ProductCard },
+  components: { 
+    ProductCard,
+    'b-icon': BIcon,
+    'b-icon-arrow-down-up': BIconArrowDownUp,
+    'b-icon-arrow-down': BIconArrowDown,
+    'b-icon-arrow-up': BIconArrowUp,
+    'b-icon-list': BIconList
+  },
   emits: ['added', 'qty-changed', 'removed', 'open-detail'],
   props: {
     title: { type: String, required: true },
     limit: { type: Number, default: 18 },
     skip: { type: Number, default: 0 },
-    initial: { type: Number, default: 6 }
+    initial: { type: Number, default: 6 },
+    sortOrder: { type: String, default: 'default' }
   },
   setup(props) {
     const products = ref([])
     const loading = ref(true)
     const error = ref('')
     const expanded = ref(false)
+    const showSortDropdown = ref(false)
+    const sortOrder = ref(props.sortOrder)
+    const sortLabel = computed(() => {
+      if (sortOrder.value === 'asc') return 'Harga Terendah'
+      if (sortOrder.value === 'desc') return 'Harga Tertinggi'
+      return 'Default'
+    })
+    const setSort = (order) => {
+      sortOrder.value = order
+      showSortDropdown.value = false
+    }
 
     const visible = computed(() =>
       expanded.value ? products.value : products.value.slice(0, props.initial)
     )
     const showMoreAvailable = computed(() => products.value.length > props.initial)
 
+    const sortedVisible = computed(() => {
+  let arr = visible.value
+  if (sortOrder.value === 'default') return arr
+  return [...arr].sort((a, b) => {
+    if (sortOrder.value === 'desc') return b.price - a.price
+    if (sortOrder.value === 'asc') return a.price - b.price
+    return 0
+  })
+})
     onMounted(fetchData)
     watch(() => [props.limit, props.skip], fetchData)
 
@@ -75,7 +123,19 @@ export default {
       }
     }
 
-    return { products, loading, error, expanded, visible, showMoreAvailable }
+    return { 
+      products, 
+      loading, 
+      error,
+      expanded, 
+      visible, 
+      showMoreAvailable, 
+      sortedVisible, 
+      showSortDropdown,
+      sortOrder,
+      sortLabel,
+      setSort 
+    }
   }
 }
 </script>
@@ -122,6 +182,62 @@ export default {
 
 .state{ 
   padding:24px 0; 
+}
+
+.sort-dropdown-wrapper {
+  display: inline-block;
+  margin-left: 16px;
+}
+.sort-select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  font-size: 1rem;
+}
+
+.sort-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+.sort-btn {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px #0001;
+}
+.sort-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  min-width: 180px;
+  z-index: 10;
+  padding: 8px 0;
+}
+.sort-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #2d7ef7;
+  transition: background 0.15s;
+}
+.sort-item:hover {
+  background: #f5f7fa;
+}
+.sort-icon {
+  font-size: 1.2em;
 }
 
 </style>

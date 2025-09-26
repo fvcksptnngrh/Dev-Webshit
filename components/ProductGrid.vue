@@ -2,7 +2,7 @@
   <div class="grid-wrapper">
     <div class="grid">
       <ProductCard
-        v-for="p in products"
+        v-for="p in sortedProducts"
         :key="p.id"
         :product="p"
         @added="onAdded"
@@ -34,7 +34,11 @@ import InfoToast from './InfoToast.vue'
 export default {
   name: 'ProductGrid',
   components: { ProductCard, AddToCartPopup, InfoToast },
-  props: { products: { type: Array, required: true } },
+  props: {
+    products: { type: Array, required: true },
+    sortOrder: { type: String, default: 'default' }
+  },
+
   data() {
     return {
       showAddPopup: false,
@@ -70,7 +74,18 @@ export default {
     openDetail(product){
       console.log('open detail', product)
     }
+  },
+
+  computed: {
+  sortedProducts() {
+    if (this.sortOrder === 'default') return this.products
+    return [...this.products].sort((a, b) => {
+      if (this.sortOrder === 'desc') return b.price - a.price
+      if (this.sortOrder === 'asc') return a.price - b.price
+      return 0
+    })
   }
+}
 }
 </script>
 
