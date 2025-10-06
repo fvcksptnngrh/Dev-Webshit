@@ -39,7 +39,10 @@ export default {
   name: 'MiniCart',
   emits: ['close'],
   computed: {
-    ...mapGetters('cart', ['itemsList', 'totalItems', 'totalPrice'])
+    ...mapGetters('cart', ['itemsList', 'totalItems', 'totalPrice']),
+    currentUser() {
+         return this.$store.getters.totalItems;
+    }
   },
   methods: {
     ...mapActions('cart', ['inc', 'dec']),

@@ -148,6 +148,7 @@ export default {
 }
 
 .section-header { 
+  gap : 40px;
   margin: 8px 0 14px; 
 }
 
@@ -186,7 +187,7 @@ export default {
 
 .sort-dropdown-wrapper {
   display: inline-block;
-  margin-left: 16px;
+  margin-left: 24px;
 }
 .sort-select {
   padding: 6px 12px;
@@ -200,18 +201,23 @@ export default {
   display: inline-block;
   margin-bottom: 16px;
 }
+
 .sort-btn {
   background: #fff;
-  border: 1px solid #eaeaea;
+  border: 1.5px solid #e4e0e0;
   border-radius: 8px;
-  padding: 8px 18px;
+  padding: 8px 24px;
   font-size: 1rem;
+  font-weight: 500;
+  color: #fd0000;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
   box-shadow: 0 2px 8px #0001;
+  transition: border-color 0.2s, color 0.2s;
 }
+
 .sort-dropdown {
   position: absolute;
   top: 110%;
@@ -222,7 +228,9 @@ export default {
   min-width: 180px;
   z-index: 10;
   padding: 8px 0;
+  border: 1px solid #fd0000;
 }
+
 .sort-item {
   display: flex;
   align-items: center;
@@ -230,12 +238,14 @@ export default {
   padding: 10px 18px;
   cursor: pointer;
   font-size: 1rem;
-  color: #2d7ef7;
+  color: #e53935;
   transition: background 0.15s;
 }
+
 .sort-item:hover {
   background: #f5f7fa;
 }
+
 .sort-icon {
   font-size: 1.2em;
 }

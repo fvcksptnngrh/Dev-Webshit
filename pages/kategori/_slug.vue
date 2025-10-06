@@ -2,7 +2,9 @@
   <div>
     <div class="main-container">
     <nav class="breadcrumb">
-      <a href="/" class="breadcrumb-link">Home</a>
+      <span class="breadcrumb-separator">›</span>
+            <nuxt-link to="/">Home</nuxt-link>
+      <!-- <a href="/" class="breadcrumb-link">Home</a>asdsad -->
       <span class="breadcrumb-separator">›</span>
       <span class="breadcrumb-current">{{ kategoriFormatted }}</span>
     </nav>
@@ -95,8 +97,9 @@ export default {
       showDescPopup: false,
       selectedProduct: null,
       popupProduct: null,
-      sortOrder: 'default,',
-      showSortDropdown: false
+      sortOrder: 'default',
+      showSortDropdown: false,
+      searchKeyword: ''
     }
   },
   async asyncData({ params }) {
@@ -154,6 +157,9 @@ export default {
       this.sortOrder = order
       this.showSortDropdown = false
     },
+    doSearch() {
+      }
+
   },
 computed: {
   kategoriFormatted() {
@@ -177,7 +183,7 @@ computed: {
       }
       return 0
     })
-  }
+  },
 }
 }
 </script>
@@ -188,18 +194,6 @@ computed: {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 24px;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  justify-content: center;
-  align-items: start;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  margin-bottom: 40px;
 }
 
 .breadcrumb {
@@ -214,36 +208,41 @@ computed: {
   width: 85%;
   box-sizing: border-box;
 }
+
 .breadcrumb-link {
-  color: #2d7ef7;
+  color : #a8a8a8;
   text-decoration: none;
   font-weight: 400;
   margin-right: 8px;
 }
+
 .breadcrumb-separator {
   color: #e57373;
   font-size: 1.2em;
   margin: 0 8px;
 }
+
 .breadcrumb-current {
-  color: #888;
+  color: #ff0000;
   font-weight: 400;
   font-size: 1rem;
 }
+
 .kategori-title {
   font-size: 1.3rem;
   font-weight: 500;
   margin-bottom: 8px;
   color: #222;
 }
+
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);   /* Selalu 6 kolom */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 16px;
-  justify-content: center;                 /* Tengah horizontal */
+  justify-content: center;
   align-items: start;
   margin: 0 auto;
-  max-width: 1100px;                       /* Sesuaikan agar grid tidak terlalu lebar */
+  max-width: 1100px;
   width: 100%;
 }
 
@@ -252,29 +251,35 @@ computed: {
   display: inline-block;
   margin-bottom: 16px;
 }
+
 .sort-btn {
   background: #fff;
-  border: 1px solid #eaeaea;
+  border: 1.5px solid #fd0000;
   border-radius: 8px;
-  padding: 8px 18px;
+  padding: 8px 24px;
   font-size: 1rem;
+  font-weight: 500;
+  color: #fd0000;                   
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
   box-shadow: 0 2px 8px #0001;
+  transition: border-color 0.2s, color 0.2s;
 }
+
 .sort-dropdown {
   position: absolute;
   top: 110%;
   left: 0;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(179, 179, 179, 0.08);
   min-width: 180px;
   z-index: 10;
   padding: 8px 0;
 }
+
 .sort-item {
   display: flex;
   align-items: center;
@@ -282,14 +287,20 @@ computed: {
   padding: 10px 18px;
   cursor: pointer;
   font-size: 1rem;
-  color: #2d7ef7;
+  color: #fd0000;
   transition: background 0.15s;
 }
+
 .sort-item:hover {
   background: #f5f7fa;
 }
+
 .sort-icon {
   font-size: 1.2em;
 }
 
+.sort-btn:hover, .sort-btn:focus {
+  border-color: #b71c1c;
+  color: #b71c1c;
+}
 </style>

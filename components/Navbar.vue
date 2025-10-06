@@ -5,7 +5,6 @@
         <b-navbar-brand href="#" class="navbar-main__brand">
           <img src="/logo-alfagift.png" alt="Alfagift Logo" class="navbar-main__logo" />
         </b-navbar-brand>
-
         <div class="cat-trigger-wrapper"
              @mouseenter="openCat"
              @mouseleave="scheduleClose">
@@ -52,15 +51,12 @@
             </b-input-group>
           </b-form>
 
-          <!-- Search Suggestions Dropdown -->
           <div v-if="showSuggestions" class="search-suggestions">
-            <!-- Loading State -->
             <div v-if="isLoadingSuggestions" class="loading-suggestions">
               <b-spinner small />
               <span>Mencari produk...</span>
             </div>
 
-                        <!-- API Search Results -->
             <div v-else-if="searchQuery !== '' && apiSuggestions.length > 0" class="suggestions-section">
               <div class="suggestions-header">
                 <span>Produk ({{ apiSuggestions.length }} hasil)</span>
@@ -71,7 +67,6 @@
                   @click="selectProduct(product)"
                   @touchstart="selectProduct(product)"
                   >
-                  <!-- @mouseenter="selectedIndex = index" -->
                 <div class="product-image">
                   <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.title" />
                   <div v-else class="no-image">
@@ -87,8 +82,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- No Results -->
             <div v-else-if="searchQuery !== '' && !isLoadingSuggestions && apiSuggestions.length === 0" class="no-results">
               <b-icon icon="search" />
               <span>Tidak ada hasil untuk "{{ searchQuery }}"</span>
@@ -98,7 +91,7 @@
 
         <b-nav class="navbar-main__right ml-auto">
           <b-nav-item href="#" class="navbar-main__link ">Brand</b-nav-item>
-          <b-nav-item href="#" class="navbar-main__link ">Promo</b-nav-item>
+          <b-nav-item href="promo" class="navbar-main__link ">Promo</b-nav-item>
           <div class="cart-wrapper">
             <CartBadge @open-cart="toggleMiniCart" />
             <MiniCart v-if="showMiniCart" @close="showMiniCart=false" />
@@ -110,8 +103,6 @@
         </b-nav>
       </b-container>
     </b-navbar>
-
-    <!-- ...existing cat-panel code... -->
     <transition name="cat-slide"
                 @enter="onEnter" @after-enter="afterEnter"
                 @leave="onLeave" @after-leave="afterLeave">
@@ -137,7 +128,6 @@
             </ul>
             <div class="subcol" v-if="hoverCategory">
               <h5 class="subcol-title">{{ hoverCategory.name }}</h5>
-              <p class="subcol-placeholder">Sub kategori akan ditaruh di sini.</p>
             </div>
           </div>
         </div>
@@ -161,7 +151,6 @@ export default {
       hoverIndex: 0,
       topOffset: 0,
       
-      // Search functionality
       searchQuery: '',
       showSuggestions: false,
       selectedIndex: -1,
@@ -170,12 +159,10 @@ export default {
       isLoading: false,
       isLoadingSuggestions: false,
       
-      // API data
       apiSuggestions: [],
       searchTimeout: null,
       allProducts: [],
-      
-      // Categories dari API
+
       categories: [],
       isLoadingCategories: false,
       selectedCategory: null
@@ -193,7 +180,7 @@ export default {
     this.computeOffset()
     this.loadSearchHistory()
     this.loadAllProducts()
-    this.loadCategories() // Load kategori dari API
+    this.loadCategories()
     window.addEventListener('resize', this.computeOffset)
     this.$root.$on('ui:openMiniCart', () => {
       this.showMiniCart = true
@@ -216,7 +203,6 @@ export default {
     
     const categoryList = await response.json()
     
-    // Ambil hanya 10 kategori pertama
     this.categories = categoryList.slice(0, 10).map(category => ({
       name: this.formatCategoryName(category),
       slug: category,
@@ -244,8 +230,7 @@ export default {
     this.isLoadingCategories = false
   }
 },
-    
-    // Format nama kategori agar lebih rapi
+
     formatCategoryName(category) {
       return category
         .split('-')
@@ -253,7 +238,6 @@ export default {
         .join(' ')
     },
     
-    // Berikan icon berdasarkan kategori
    getCategoryIconName(category) {
   const iconMap = {
     'beauty': 'brush',
@@ -270,7 +254,6 @@ export default {
   return iconMap[category] || 'box'
 },
     
-    // Handle klik kategori
     selectCategory(category) {
       this.selectedCategory = category
       this.$emit('category-selected', {
@@ -281,14 +264,11 @@ export default {
       this.hideCatImmediate()
       console.log('Category selected:', category.originalName)
     },
-    
-    // Reset filter kategori
     clearCategoryFilter() {
       this.selectedCategory = null
       this.$emit('category-cleared')
     },
 
-    // ...existing methods...
     computeOffset() {
       const topBar = document.querySelector('.top-navbar') || document.querySelector('.TopNavbar')
       this.topOffset = topBar ? topBar.offsetHeight : 0
@@ -374,9 +354,6 @@ export default {
       }
     },
 
-    
-    
-    // Search methods
     onSearchFocus() {
       this.isSearchFocused = true
       this.showSuggestions = true
@@ -398,7 +375,6 @@ export default {
       if (!this.showSuggestions) {
         this.showSuggestions = true
       }
-      
       this.clearSearchTimeout()
       if (this.searchQuery.trim()) {
         this.searchTimeout = setTimeout(() => {
@@ -756,7 +732,6 @@ export default {
 
 .subcol { flex:1; padding:38px 48px; }
 .subcol-title { margin:0 0 14px; font-size:18px; font-weight:600; }
-.subcol-placeholder { margin:0; font-size:14px; color:#666; }
 
 /* Search Styles */
 .navbar-main__search-wrapper {

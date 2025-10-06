@@ -8,8 +8,7 @@ export const getters = {
   getQty: s => id => s.items[id]?.qty || 0,
   totalItems: s => Object.values(s.items).reduce((sum, it) => sum + it.qty, 0),
   itemsList: s => Object.values(s.items),
-  totalPrice: s => Object.values(s.items)
-                   .reduce((sum, it) => sum + it.product.price * it.qty, 0)
+  totalPrice: s => Object.values(s.items).reduce((sum, it) => sum + it.product.price * it.qty, 0)
 }
 
 export const mutations = {

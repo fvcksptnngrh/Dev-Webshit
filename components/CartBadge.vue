@@ -11,7 +11,7 @@ export default {
   name: 'CartBadge',
   emits: ['open-cart'],
   computed: {
-    ...mapGetters('cart', ['totalItems'])
+    ...mapGetters('cart', ['itemsList', 'totalItems', 'totalPrice'])
   }
 }
 </script>

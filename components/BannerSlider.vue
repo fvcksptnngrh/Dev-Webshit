@@ -71,9 +71,7 @@ export default {
         { image: "/kopi.jpeg", link: "#", alt: "Promo 10" },
         { image: "/ovo.jpeg", link: "#", alt: "Promo 11" },
         { image: "/Sejagat.jpeg", link: "#", alt: "Promo 12" },
-        { image: "/Umroh.jpeg", link: "#", alt: "Promo 13" },
-
-
+        { image: "/Umroh.jpeg", link: "#", alt: "Promo 13" }
       ]
     }
   },
